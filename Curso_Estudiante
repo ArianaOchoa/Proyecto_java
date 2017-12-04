@@ -1,0 +1,632 @@
+package LeerArchivos;
+
+import objetos.Cuenta;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * @author Ariana Ochoa
+ * @author Karina Sailema
+ * @author Aldair Soledispa
+ * Esta clase Leemos y modificamos el fichero cuenta
+ */
+
+public class LeerCuenta {
+
+    private boolean band=true;
+    /**
+     * @return  LinkedList<Cuenta> retornamos una lista de cuentas de usuario
+     * cargamos todos las cuentas de usuarios.txt
+     */
+    public LinkedList<Cuenta> cargarCuenta() {
+        FileReader fr;
+        BufferedReader br = null;
+        String linea;
+        String valores[];
+        Cuenta c1;
+        LinkedList<Cuenta> cuenta=new LinkedList<>();
+        
+        try {
+            int acum=1;
+            fr = new FileReader("usuarios.txt");
+            br = new BufferedReader(fr);
+            //abrimos el archivo y recorremos linea por linea
+            while ((linea = br.readLine()) != null) {
+                if(acum==1){
+                   valores = linea.split(",", 5);
+                    c1 = new Cuenta();
+                    //ingresamos todos los valores a un objeto Cuenta c1
+                    c1.usuario=valores[0];
+                    c1.contraseña=valores[1];
+                    c1.nombre=valores[2];
+                    c1.apellido=valores[3];
+                    c1.rol=valores[4];
+                    cuenta.add(c1);
+                }else{
+                    acum=1;
+                }
+                
+            }
+         //manegamos excepciones 
+        } catch (FileNotFoundException ex) {
+            System.out.println("El archivo no existe");
+        } catch (IOException ex) {
+            System.out.println("Error de Lectura");
+        }
+        return cuenta;
+    }
+    /**
+     * @return  Cuenta retornamos una  cuenta de usuario
+     * Maneja el ingreso, ya sea por estudiante o planificador
+     */
+    public Cuenta leerCuenta() {
+        Scanner scan = new Scanner(System.in);
+        LinkedList<Cuenta> cuenta=cargarCuenta();
+        Cuenta c1= new Cuenta();
+        //Se vuelve a ejecutar si la contraseña o usuario son incorrectos
+        while (band==true){
+        
+            System.out.println("\nPor Favor ingrese Usuario y Contraseña");
+            System.out.print("    Usuario: ");
+            String user=scan.nextLine();
+            System.out.print("    Contraseña: ");
+            String passw=scan.nextLine(); 
+            //recorremos el archivo usuario.txt para comprobar si el usuario y contraseña son correctos
+             for (Cuenta obj : cuenta) {
+                 if(obj.usuario.equals(user)){
+                     if(obj.contraseña.equals(passw)){
+                         System.out.println("\nIngreso exitoso");
+                         System.out.println("\nBienvenid@ " +obj.nombre + " " + obj.apellido );
+                         c1=obj;
+                         band=false;
+                     } 
+                 }
+            }
+            if (c1.usuario.equals("")){
+                System.out.println("“El usuario o la contraseña no son válidos. Por favor intente otra vez.”");
+            }
+        }
+        return c1;
+    }
+}
+package LeerArchivos;
+
+import objetos.Curso;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.Scanner;
+import objetos.Estudiante;
+/**
+ * @author Ariana Ochoa
+ * @author Karina Sailema
+ * @author Aldair Soledispa
+ * Esta clase Leemos y modificamos el fichero curso
+ */
+public class LeerCurso {
+    private boolean band=true;
+    /**
+     * @return  LinkedList<Curso> retornamos una lista de Cursos
+     * cargamos todos los cursos disponibles
+     */
+    public LinkedList<Curso> cargarCurso() {
+        FileReader fr;
+        BufferedReader br = null;
+        String linea;
+        String valores[];
+        Curso c1;
+        LinkedList<Curso> curso=new LinkedList<>();
+        
+        try {
+            int acum=0;
+            fr = new FileReader("cursos.txt");
+            br = new BufferedReader(fr);
+            
+            while ((linea = br.readLine()) != null) {
+                if(acum==1){
+                    valores = linea.split(",", 7);
+                    c1 = new Curso();
+                    c1.materia=valores[0];
+                    c1.namProfesor=valores[1];
+                    c1.apelProfesor=valores[2];
+                    c1.capacidad=Integer.parseInt(valores[3]);
+                    c1.horario=valores[4];
+                    c1.dia=valores[5];
+                    c1.registrados=Integer.parseInt(valores[6]);
+                    curso.add(c1);
+                }else{
+                    acum=1;
+                }
+                
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("El archivo no existe");
+        } catch (IOException ex) {
+            System.out.println("Error de Lectura");
+        }
+        return curso;
+    }
+    /**
+     * @param  Curso curso  recibe como parametro un curso
+     * Guardamos un curso en el archivo cursos.txt
+     */
+    public void guardarCurso(Curso curso) {
+        FileWriter fw;
+        BufferedWriter bw;
+        PrintWriter pw;
+        String titulo=null;
+        try {
+            fw = new FileWriter("cursos.txt",true);
+            bw = new BufferedWriter(fw);
+            pw = new PrintWriter(bw);
+            pw.print(curso.materia+",");
+            pw.print(curso.namProfesor+",");
+            pw.print(curso.apelProfesor+",");
+            pw.print(curso.capacidad+",");
+            pw.print(curso.horario+",");
+            pw.print(curso.dia+",");
+            pw.println(curso.registrados);
+            pw.close();
+            bw.close();
+            System.out.println("\nSe ha creado con exito el Curso\n ");
+            System.out.println(curso);
+            
+        } catch (IOException ex) {
+            System.out.println("ERROR: No se puedo guardar el curso");
+        }
+        
+    }
+     /**
+     * @param  Curso curso  recibe como parametro un curso
+     * Editamos el archivo cursos.txt para aumentar el numero de registrados en un Curso
+     */
+   public void editarCurso(Curso curso) {
+        FileWriter fw;
+        BufferedWriter bw;
+        PrintWriter pw;
+        String titulo=null;
+        LinkedList<Curso> lista=cargarCurso();
+
+        try {
+            int acum=0;
+            fw = new FileWriter("cursos.txt");
+            bw = new BufferedWriter(fw);
+            pw = new PrintWriter(bw);
+             for (Curso obj : lista) {
+                 
+                 if (acum==0){
+                     pw.println("MATERIA,NOMBREPROF,APELLIDOPROFE,CAPACIDAD,HORARIO,DiA,REGISTRADOR");
+                     acum=2;
+                     if(obj.materia.equals(curso.materia)){
+                        pw.print(curso.materia+",");
+                        pw.print(curso.namProfesor+",");
+                        pw.print(curso.apelProfesor+",");
+                        pw.print(curso.capacidad+",");
+                        pw.print(curso.horario+",");
+                        pw.print(curso.dia+",");
+                        pw.println(curso.registrados+1);
+                        
+                     }else{
+                        pw.print(obj.materia+",");
+                        pw.print(obj.namProfesor+",");
+                        pw.print(obj.apelProfesor+",");
+                        pw.print(obj.capacidad+",");
+                        pw.print(obj.horario+",");
+                        pw.print(obj.dia+",");
+                        pw.println(obj.registrados);
+                     }
+                 }else{
+                     if(obj.materia.equals(curso.materia)){
+                        pw.print(curso.materia+",");
+                        pw.print(curso.namProfesor+",");
+                        pw.print(curso.apelProfesor+",");
+                        pw.print(curso.capacidad+",");
+                        pw.print(curso.horario+",");
+                        pw.print(curso.dia+",");
+                        pw.println(curso.registrados+1);
+                     }else{
+                        pw.print(obj.materia+",");
+                        pw.print(obj.namProfesor+",");
+                        pw.print(obj.apelProfesor+",");
+                        pw.print(obj.capacidad+",");
+                        pw.print(obj.horario+",");
+                        pw.print(obj.dia+",");
+                        pw.println(obj.registrados);
+                     }
+                 }   
+            }
+            pw.close();
+            bw.close();
+            
+        } catch (IOException ex) {
+            System.out.println("ERROR: No se puedo crear el curso");
+        }
+        
+    }
+    
+}
+package LeerArchivos;
+
+import objetos.Estudiante;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.LinkedList;
+
+/**
+ * @author Ariana Ochoa
+ * @author Karina Sailema
+ * @author Aldair Soledispa
+ * Esta clase Leemos y modificamos el fichero estudiante
+ */
+public class LeerEstudiante {
+    /**
+     * @return  LinkedList<Estudiante> retornamos una lista de Estudiantes
+     * Cargamos todos los estudiantes del archivo estudiantes.txt
+     */
+    public LinkedList<Estudiante> cargarEstudiante() {
+        FileReader fr;
+        BufferedReader br = null;
+        String linea;
+        String valores[];
+        Estudiante e1;
+        LinkedList<Estudiante> estudiante=new LinkedList<>();
+        
+        try {
+            
+            fr = new FileReader("estudiantes.txt");
+            br = new BufferedReader(fr);
+            int acum=0;
+            
+            while ((linea = br.readLine()) != null) {
+                if(acum==1){
+                    valores = linea.split(",", 7);
+                    e1 = new Estudiante();
+                    e1.nombre=valores[0];
+                    e1.apellido=valores[1];
+                    e1.edad=Integer.parseInt(valores[2]);
+                    e1.varita=valores[3];
+                    e1.casa=valores[4];
+                    e1.tipo=valores[5];
+                    e1.materias=Integer.parseInt(valores[6]);
+                    estudiante.add(e1);
+                }else{
+                    acum=1;
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("El archivo no existe");
+        } catch (IOException ex) {
+            System.out.println("Error de Lectura");
+        }
+        return estudiante;
+    }
+    /**
+     * @param  Estudiante estudiante  recibe como parametro un estudiante
+     * Guardamos un estudiante en el archivo estudiantes.txt
+     */
+    public void guardarEstudiante(Estudiante estudiante) {
+        FileWriter fw;
+        BufferedWriter bw;
+        PrintWriter pw;
+
+        try {
+            fw = new FileWriter("estudiantes.txt",true);
+            bw = new BufferedWriter(fw);
+            pw = new PrintWriter(bw);
+            pw.write(estudiante.nombre+",");
+            pw.write(estudiante.apellido+",");
+            pw.write(estudiante.edad+",");
+            pw.write(estudiante.varita+",");
+            pw.write(estudiante.casa+",");
+            pw.write(estudiante.tipo+",");
+            pw.println(estudiante.materias);
+            
+            pw.close();
+            bw.close();
+            System.out.println("\nSe ha creado con exito el Estudiante\n ");
+            System.out.println(estudiante);
+            
+        } catch (IOException ex) {
+            System.out.println("ERROR: No se puedo guardar el estudiante");
+        }
+        
+    }
+    /**
+     * @param  Estudiante estudiante  recibe como parametro un Estudiante
+     * Editamos el archivo estudiantes.txt para aumentar las materias registradas
+     */
+   public void editarEstudiante(Estudiante estudiante) {
+        FileWriter fw;
+        BufferedWriter bw;
+        PrintWriter pw;
+        String titulo=null;
+        LinkedList<Estudiante> lista=cargarEstudiante();
+
+        try {
+            int acum=0;
+            fw = new FileWriter("estudiantes.txt");
+            bw = new BufferedWriter(fw);
+            pw = new PrintWriter(bw);
+             for (Estudiante obj : lista) {
+                 
+                 if (acum==0){
+                     pw.println("NOMBRE,APELLIDO,EDAD,VARITA,CASA,TIPO,MATERIASREG");
+                     acum=2;
+                     if(obj.nombre.equals(estudiante.nombre)){
+                        pw.print(estudiante.nombre+",");
+                        pw.print(estudiante.apellido+",");
+                        pw.print(estudiante.edad+",");
+                        pw.print(estudiante.varita+",");
+                        pw.print(estudiante.casa+",");
+                        pw.print(estudiante.tipo+",");
+                        //si la materia escogida es igual a la materia de un estudiante, aumenta las materias registradas +1
+                        pw.println(estudiante.materias+1);
+                     }else{
+                        pw.print(obj.nombre+",");
+                        pw.print(obj.apellido+",");
+                        pw.print(obj.edad+",");
+                        pw.print(obj.varita+",");
+                        pw.print(obj.casa+",");
+                        pw.print(obj.tipo+",");
+                        pw.println(obj.materias);
+                     }
+                 }else{
+                     if(obj.nombre.equals(estudiante.nombre)){
+                        pw.print(estudiante.nombre+",");
+                        pw.print(estudiante.apellido+",");
+                        pw.print(estudiante.edad+",");
+                        pw.print(estudiante.varita+",");
+                        pw.print(estudiante.casa+",");
+                        pw.print(estudiante.tipo+",");
+                        pw.println(estudiante.materias+1);
+                     }else{
+                        pw.print(obj.nombre+",");
+                        pw.print(obj.apellido+",");
+                        pw.print(obj.edad+",");
+                        pw.print(obj.varita+",");
+                        pw.print(obj.casa+",");
+                        pw.print(obj.tipo+",");
+                        pw.println(obj.materias);
+                     } 
+                 }
+            }
+            pw.close();
+            bw.close();
+            
+        } catch (IOException ex) {
+            System.out.println("ERROR: No se puedo editar estudiante");
+        }
+        
+    }
+}
+package objetos;
+
+/**
+ * @author Ariana Ochoa
+ * @author Karina Sailema
+ * @author Aldair Soledispa
+ * 
+ */
+public class Cuenta {
+    public String usuario;
+    public String contraseña;
+    public String nombre;
+    public String apellido;
+    public String rol;
+    /**
+     * Contructor vacio para crear objetos
+     */
+    public Cuenta() {
+    }
+
+    /**
+     * Contructor con todos los parametros 
+     */
+    public Cuenta(String usuario, String contraseña, String nombre, String apellido, String rol) {
+        this.usuario = usuario;
+        this.contraseña = contraseña;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.rol = rol;
+    }
+    /**
+     * Get y Set de Cuenta
+     */
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getContraseña() {
+        return contraseña;
+    }
+
+    public void setContraseña(String contraseña) {
+        this.contraseña = contraseña;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+     /**
+     * toString de del objeto 
+     * @return String
+     */
+    @Override
+    public String toString() {
+        return "Usuario: " + usuario + "\nContraseña: " + contraseña + " Nombre: " + nombre + " " + apellido + "\n ROL: " + rol;
+    }
+}
+package objetos;
+
+/**
+ * @author Ariana Ochoa
+ * @author Karina Sailema
+ * @author Aldair Soledispa
+ * 
+ */
+public class Curso {
+    public String materia;
+    public String namProfesor;
+    public String apelProfesor;
+    public int capacidad=0;
+    public String horario;
+    public String dia;
+    public int registrados=0;
+    /**
+     * Contructor vacio para crear objetos
+     */
+    public Curso() {
+    }
+    /**
+     * Contructor con parametros
+     */
+    public Curso(String materia, String namProfesor, String apelProfesor, int capacidad, String horario, String dia, int registrados) {
+        this.materia = materia;
+        this.namProfesor = namProfesor;
+        this.apelProfesor = apelProfesor;
+        this.capacidad = capacidad;
+        this.horario = horario;
+        this.dia = dia;
+        this.registrados = registrados;
+    }
+
+    public int getRegistrados() {
+        return registrados;
+    }
+
+    public void setRegistrados(int registrados) {
+        this.registrados = registrados;
+    }
+
+ 
+    public String getMateria() {
+        return materia;
+    }
+
+    public void setMateria(String materia) {
+        this.materia = materia;
+    }
+
+    public String getNamProfesor() {
+        return namProfesor;
+    }
+
+    public void setNamProfesor(String namProfesor) {
+        this.namProfesor = namProfesor;
+    }
+
+    public String getApelProfesor() {
+        return apelProfesor;
+    }
+
+    public void setApelProfesor(String apelProfesor) {
+        this.apelProfesor = apelProfesor;
+    }
+
+    public int getCapacidad() {
+        return capacidad;
+    }
+
+    public void setCapacidad(int capacidad) {
+        this.capacidad = capacidad;
+    }
+
+    public String getHorario() {
+        return horario;
+    }
+
+    public void setHorario(String horario) {
+        this.horario = horario;
+    }
+
+    public String getDia() {
+        return dia;
+    }
+
+    public void setDia(String dia) {
+        this.dia = dia;
+    }
+
+    @Override
+    public String toString() {
+        return "MATERIA: " + materia + "\nPROFESOR: " + namProfesor + " " + apelProfesor + "\nCAPACIDAD: " + capacidad + "\nHORARIO: " +dia + ", " +horario;
+    }
+
+   
+}
+package objetos;
+
+/**
+ * @author Ariana Ochoa
+ * @author Karina Sailema
+ * @author Aldair Soledispa
+ * Un estudiante es una Persona por lo cual no es necesario crear de nuevo todas las variables
+ */
+public class Estudiante extends Persona {
+    public int materias=0;
+    /**
+     * Contructor vacio para crear objetos
+     */
+    public Estudiante() {
+    }
+    /**
+     * Contructor con parametros
+     */
+    public Estudiante(int materias, String nombre, String apellido, int edad, String casa, String varita, String tipo) {
+        super(nombre, apellido, edad, casa, varita, tipo);
+        this.materias = materias;
+    }
+
+    public int getMaterias() {
+        return materias;
+    }
+
+    public void setMaterias(int materias) {
+        this.materias = materias;
+    }
+    
+    @Override
+    public String toString() {
+        return "\nNOMBRE: " + nombre  +" " + apellido + "\nEDAD: " + edad + " años\nVARITA: " + varita +"\nCASA: " + casa+ "\nTIPO: " + tipo ;
+    }
+    
+}
+
